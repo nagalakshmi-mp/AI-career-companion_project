@@ -71,13 +71,10 @@ AI-career-companion_project/
 ├── requirements.txt
 ├── README.md
 ├── .gitignore
-├── src/
-│   ├── agents/
-│   └── rag/
 ├── data/
 │   └── jobs.csv
-├── database/
-└── uploads/
+└── src/
+    └── [Python modules and subfolders]
 ```
 
 *Note: The structure above illustrates the main project components. Actual subfolders and files may differ. Keep the existing source-code structure required by the application.*
