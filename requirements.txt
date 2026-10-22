@@ -1,5 +1,7 @@
+
 streamlit
 pandas
 PyMuPDF
 python-docx
 openai
+chromadb
