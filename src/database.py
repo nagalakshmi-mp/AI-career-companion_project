@@ -1,13 +1,31 @@
+
+import os
 import sqlite3
 import json
 from datetime import datetime
 
 
-DATABASE_PATH = "database/internship.db"
+# ============================================================
+# DATABASE PATH — WORKS LOCALLY AND ON STREAMLIT CLOUD
+# ============================================================
+
+BASE_DIR = os.path.dirname(
+    os.path.dirname(os.path.abspath(__file__))
+)
+
+DATABASE_DIR = os.path.join(BASE_DIR, "database")
+DATABASE_PATH = os.path.join(DATABASE_DIR, "internship.db")
 
 
 def get_connection():
-    return sqlite3.connect(DATABASE_PATH)
+    """
+    Create the database directory if it does not exist,
+    then connect to the SQLite database.
+    """
+    os.makedirs(DATABASE_DIR, exist_ok=True)
+    connection = sqlite3.connect(DATABASE_PATH)
+    connection.execute("PRAGMA foreign_keys = ON")
+    return connection
 
 
 # ============================================================
@@ -22,78 +40,41 @@ def initialize_database():
     connection = get_connection()
     cursor = connection.cursor()
 
-    # --------------------------------------------------------
-    # STUDENT PROFILES TABLE
-    # --------------------------------------------------------
-
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS student_profiles (
-
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-
             name TEXT,
-
             email TEXT,
-
             phone TEXT,
-
             education TEXT,
-
             skills TEXT,
-
             experience TEXT,
-
             projects TEXT,
-
             qualifications TEXT,
-
             resume_filename TEXT,
-
             resume_path TEXT
-
         )
     """)
 
-    # --------------------------------------------------------
-    # APPLICATION TRACKING TABLE
-    # --------------------------------------------------------
-
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS applications (
-
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-
             profile_id INTEGER,
-
             company TEXT NOT NULL,
-
             job_title TEXT NOT NULL,
-
             job_description TEXT,
-
             application_date TEXT,
-
             deadline TEXT,
-
             status TEXT DEFAULT 'Saved',
-
             interview_date TEXT,
-
             interview_status TEXT,
-
             notes TEXT,
-
             resume_path TEXT,
-
             cover_letter TEXT,
-
             created_at TEXT,
-
             updated_at TEXT,
-
             FOREIGN KEY (profile_id)
                 REFERENCES student_profiles(id)
-
         )
     """)
 
@@ -106,77 +87,42 @@ def initialize_database():
 # ============================================================
 
 def save_student_profile(profile, resume_filename, resume_path):
-    """
-    Save a structured candidate profile into SQLite.
-    """
+    """Save a structured candidate profile into SQLite."""
 
     connection = get_connection()
     cursor = connection.cursor()
 
     cursor.execute("""
         INSERT INTO student_profiles (
-            name,
-            email,
-            phone,
-            education,
-            skills,
-            experience,
-            projects,
-            qualifications,
-            resume_filename,
-            resume_path
+            name, email, phone, education, skills,
+            experience, projects, qualifications,
+            resume_filename, resume_path
         )
-
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
-
         profile.get("name", ""),
-
         profile.get("email", ""),
-
         profile.get("phone", ""),
-
-        json.dumps(
-            profile.get("education", [])
-        ),
-
-        json.dumps(
-            profile.get("skills", [])
-        ),
-
-        json.dumps(
-            profile.get("experience", [])
-        ),
-
-        json.dumps(
-            profile.get("projects", [])
-        ),
-
-        json.dumps(
-            profile.get("qualifications", [])
-        ),
-
+        json.dumps(profile.get("education", [])),
+        json.dumps(profile.get("skills", [])),
+        json.dumps(profile.get("experience", [])),
+        json.dumps(profile.get("projects", [])),
+        json.dumps(profile.get("qualifications", [])),
         resume_filename,
-
         resume_path
     ))
 
     connection.commit()
-
     profile_id = cursor.lastrowid
-
     connection.close()
 
     return profile_id
 
 
 def get_student_profiles():
-    """
-    Retrieve all saved student profiles.
-    """
+    """Retrieve all saved student profiles."""
 
     connection = get_connection()
-
     cursor = connection.cursor()
 
     cursor.execute("""
@@ -186,7 +132,6 @@ def get_student_profiles():
     """)
 
     rows = cursor.fetchall()
-
     connection.close()
 
     return rows
@@ -210,9 +155,7 @@ def add_application(
     resume_path="",
     cover_letter=""
 ):
-    """
-    Add a new internship/job application.
-    """
+    """Add a new internship/job application."""
 
     connection = get_connection()
     cursor = connection.cursor()
@@ -223,27 +166,13 @@ def add_application(
 
     cursor.execute("""
         INSERT INTO applications (
-
-            profile_id,
-            company,
-            job_title,
-            job_description,
-            application_date,
-            deadline,
-            status,
-            interview_date,
-            interview_status,
-            notes,
-            resume_path,
-            cover_letter,
-            created_at,
-            updated_at
-
+            profile_id, company, job_title, job_description,
+            application_date, deadline, status, interview_date,
+            interview_status, notes, resume_path, cover_letter,
+            created_at, updated_at
         )
-
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
-
         profile_id,
         company,
         job_title,
@@ -258,13 +187,10 @@ def add_application(
         cover_letter,
         current_time,
         current_time
-
     ))
 
     connection.commit()
-
     application_id = cursor.lastrowid
-
     connection.close()
 
     return application_id
@@ -272,26 +198,21 @@ def add_application(
 
 def get_all_applications(profile_id=None):
     """
-    Retrieve all applications.
-
-    If profile_id is provided, only applications belonging
-    to that student profile are returned.
+    Retrieve all applications. If profile_id is provided,
+    return only applications belonging to that profile.
     """
 
     connection = get_connection()
     cursor = connection.cursor()
 
     if profile_id is not None:
-
         cursor.execute("""
             SELECT *
             FROM applications
             WHERE profile_id = ?
             ORDER BY id DESC
         """, (profile_id,))
-
     else:
-
         cursor.execute("""
             SELECT *
             FROM applications
@@ -299,16 +220,13 @@ def get_all_applications(profile_id=None):
         """)
 
     rows = cursor.fetchall()
-
     connection.close()
 
     return rows
 
 
 def get_application_by_id(application_id):
-    """
-    Retrieve one application using its ID.
-    """
+    """Retrieve one application using its ID."""
 
     connection = get_connection()
     cursor = connection.cursor()
@@ -320,7 +238,6 @@ def get_application_by_id(application_id):
     """, (application_id,))
 
     row = cursor.fetchone()
-
     connection.close()
 
     return row
@@ -340,9 +257,7 @@ def update_application(
     resume_path="",
     cover_letter=""
 ):
-    """
-    Update an existing application.
-    """
+    """Update an existing application."""
 
     connection = get_connection()
     cursor = connection.cursor()
@@ -353,9 +268,7 @@ def update_application(
 
     cursor.execute("""
         UPDATE applications
-
         SET
-
             company = ?,
             job_title = ?,
             job_description = ?,
@@ -368,10 +281,8 @@ def update_application(
             resume_path = ?,
             cover_letter = ?,
             updated_at = ?
-
         WHERE id = ?
     """, (
-
         company,
         job_title,
         job_description,
@@ -385,18 +296,14 @@ def update_application(
         cover_letter,
         current_time,
         application_id
-
     ))
 
     connection.commit()
-
     connection.close()
 
 
 def delete_application(application_id):
-    """
-    Delete an application.
-    """
+    """Delete an application."""
 
     connection = get_connection()
     cursor = connection.cursor()
@@ -421,10 +328,7 @@ def search_applications(
     status="All",
     deadline_filter="All"
 ):
-    """
-    Search and filter applications by company,
-    job title, status and deadline.
-    """
+    """Search and filter applications."""
 
     connection = get_connection()
     cursor = connection.cursor()
@@ -454,14 +358,11 @@ def search_applications(
         parameters.append(status)
 
     if deadline_filter == "Upcoming":
-
         query += """
             AND deadline != ''
             AND date(deadline) >= date('now')
         """
-
     elif deadline_filter == "Past":
-
         query += """
             AND deadline != ''
             AND date(deadline) < date('now')
@@ -469,18 +370,13 @@ def search_applications(
 
     query += """
         ORDER BY
-            CASE
-                WHEN deadline = '' THEN 1
-                ELSE 0
-            END,
+            CASE WHEN deadline = '' THEN 1 ELSE 0 END,
             date(deadline) ASC,
             id DESC
     """
 
     cursor.execute(query, parameters)
-
     rows = cursor.fetchall()
-
     connection.close()
 
     return rows
@@ -491,50 +387,34 @@ def search_applications(
 # ============================================================
 
 def get_upcoming_deadlines(profile_id=None, days=7):
-    """
-    Get applications with deadlines occurring within
-    the specified number of days.
-    """
+    """Get applications with deadlines within the given days."""
 
     connection = get_connection()
     cursor = connection.cursor()
 
     if profile_id is not None:
-
         cursor.execute("""
             SELECT *
             FROM applications
-
             WHERE profile_id = ?
-
-            AND deadline != ''
-
-            AND date(deadline)
-                BETWEEN date('now')
-                AND date('now', '+' || ? || ' days')
-
+              AND deadline != ''
+              AND date(deadline)
+                  BETWEEN date('now')
+                  AND date('now', '+' || ? || ' days')
             ORDER BY date(deadline) ASC
-
         """, (profile_id, days))
-
     else:
-
         cursor.execute("""
             SELECT *
             FROM applications
-
             WHERE deadline != ''
-
-            AND date(deadline)
-                BETWEEN date('now')
-                AND date('now', '+' || ? || ' days')
-
+              AND date(deadline)
+                  BETWEEN date('now')
+                  AND date('now', '+' || ? || ' days')
             ORDER BY date(deadline) ASC
-
         """, (days,))
 
     rows = cursor.fetchall()
-
     connection.close()
 
     return rows
@@ -545,25 +425,20 @@ def get_upcoming_deadlines(profile_id=None, days=7):
 # ============================================================
 
 def get_scheduled_interviews(profile_id=None):
-    """
-    Retrieve applications with scheduled interviews.
-    """
+    """Retrieve applications with scheduled interviews."""
 
     connection = get_connection()
     cursor = connection.cursor()
 
     if profile_id is not None:
-
         cursor.execute("""
             SELECT *
             FROM applications
             WHERE profile_id = ?
-            AND interview_status = 'Scheduled'
+              AND interview_status = 'Scheduled'
             ORDER BY date(interview_date) ASC
         """, (profile_id,))
-
     else:
-
         cursor.execute("""
             SELECT *
             FROM applications
@@ -572,7 +447,6 @@ def get_scheduled_interviews(profile_id=None):
         """)
 
     rows = cursor.fetchall()
-
     connection.close()
 
     return rows
@@ -583,24 +457,18 @@ def get_scheduled_interviews(profile_id=None):
 # ============================================================
 
 def get_application_statistics(profile_id=None):
-    """
-    Return application tracking statistics for the dashboard.
-    """
+    """Return application tracking statistics for the dashboard."""
 
     connection = get_connection()
     cursor = connection.cursor()
 
     if profile_id is not None:
-
         condition = "WHERE profile_id = ?"
         parameters = (profile_id,)
-
     else:
-
         condition = ""
         parameters = ()
 
-    # Total applications
     cursor.execute(
         f"""
         SELECT COUNT(*)
@@ -609,10 +477,8 @@ def get_application_statistics(profile_id=None):
         """,
         parameters
     )
-
     total_applications = cursor.fetchone()[0]
 
-    # Active applications
     active_statuses = (
         "Saved",
         "Planning to apply",
@@ -623,31 +489,23 @@ def get_application_statistics(profile_id=None):
         "Interview completed"
     )
 
-    placeholders = ",".join(
-        ["?"] * len(active_statuses)
-    )
+    placeholders = ",".join(["?"] * len(active_statuses))
 
     if profile_id is not None:
-
         cursor.execute(
             f"""
             SELECT COUNT(*)
             FROM applications
-
             WHERE profile_id = ?
-
-            AND status IN ({placeholders})
+              AND status IN ({placeholders})
             """,
             (profile_id,) + active_statuses
         )
-
     else:
-
         cursor.execute(
             f"""
             SELECT COUNT(*)
             FROM applications
-
             WHERE status IN ({placeholders})
             """,
             active_statuses
@@ -655,107 +513,69 @@ def get_application_statistics(profile_id=None):
 
     active_applications = cursor.fetchone()[0]
 
-    # Upcoming deadlines
     if profile_id is not None:
-
         cursor.execute("""
             SELECT COUNT(*)
             FROM applications
-
             WHERE profile_id = ?
-
-            AND deadline != ''
-
-            AND date(deadline) >= date('now')
-
-            AND date(deadline)
-                <= date('now', '+7 days')
-
+              AND deadline != ''
+              AND date(deadline) >= date('now')
+              AND date(deadline) <= date('now', '+7 days')
         """, (profile_id,))
-
     else:
-
         cursor.execute("""
             SELECT COUNT(*)
             FROM applications
-
             WHERE deadline != ''
-
-            AND date(deadline) >= date('now')
-
-            AND date(deadline)
-                <= date('now', '+7 days')
+              AND date(deadline) >= date('now')
+              AND date(deadline) <= date('now', '+7 days')
         """)
 
     upcoming_deadlines = cursor.fetchone()[0]
 
-    # Scheduled interviews
     if profile_id is not None:
-
         cursor.execute("""
             SELECT COUNT(*)
             FROM applications
-
             WHERE profile_id = ?
-
-            AND interview_date != ''
-
+              AND interview_date != ''
         """, (profile_id,))
-
     else:
-
         cursor.execute("""
             SELECT COUNT(*)
             FROM applications
-
             WHERE interview_date != ''
         """)
 
     interviews_scheduled = cursor.fetchone()[0]
 
-    # Offers
     if profile_id is not None:
-
         cursor.execute("""
             SELECT COUNT(*)
             FROM applications
-
             WHERE profile_id = ?
-
-            AND status = 'Offer received'
-
+              AND status = 'Offer received'
         """, (profile_id,))
-
     else:
-
         cursor.execute("""
             SELECT COUNT(*)
             FROM applications
-
             WHERE status = 'Offer received'
         """)
 
     offers = cursor.fetchone()[0]
 
-    # Rejected
     if profile_id is not None:
-
         cursor.execute("""
             SELECT COUNT(*)
             FROM applications
-
             WHERE profile_id = ?
-
-            AND status = 'Rejected'
-
+              AND status = 'Rejected'
         """, (profile_id,))
-
     else:
-
         cursor.execute("""
             SELECT COUNT(*)
             FROM applications
-
             WHERE status = 'Rejected'
         """)
 
@@ -772,21 +592,7 @@ def get_application_statistics(profile_id=None):
         "rejected": rejected
     }
 
-print("\n--- APPLICATIONS IN DATABASE ---")
 
-connection = get_connection()
-cursor = connection.cursor()
-
-cursor.execute("""
-    SELECT id, profile_id, company, job_title, status
-    FROM applications
-    ORDER BY id DESC
-""")
-
-rows = cursor.fetchall()
-
-for row in rows:
-    print(row)
-connection.close()
-
-
+# Initialize tables when this module is imported.
+# This allows a fresh cloud deployment to start with an empty database.
+initialize_database()
