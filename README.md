@@ -69,13 +69,15 @@ AI Career Companion brings essential career preparation tools together in one St
 ## 📁 Project Structure
 
 ```text
+## Project Structure
+
+```text
 AI-career-companion_project/
-│
 ├── app.py
 ├── requirements.txt
 ├── README.md
 ├── .gitignore
-│
+├── LICENSE
 ├── AGILE_METHODOLOGY.md
 ├── MILESTONE_1_REPORT.md
 ├── MILESTONE_2_REPORT.md
@@ -86,11 +88,9 @@ AI-career-companion_project/
 ├── USER_GUIDE.md
 ├── CONTRIBUTING.md
 ├── CHANGELOG.md
-│
 ├── data/
 │   ├── README.md
 │   └── jobs.csv
-│
 └── src/
     ├── __init__.py
     ├── candidate_profile.py
@@ -108,6 +108,9 @@ AI-career-companion_project/
     ├── resume_parser.py
     ├── skill_gap_agent.py
     └── test_resume.py
+```
+
+
 ```
 
 ```
