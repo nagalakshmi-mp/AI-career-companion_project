@@ -2,6 +2,12 @@
 
 An AI-powered career assistance platform that helps students prepare for internships and job opportunities through resume analysis, job matching, skill-gap identification, interview preparation, and application tracking.
 
+## 🚀 Live Demo
+
+Try the AI Career Companion application here:
+
+[**Open AI Career Companion**](https://ai-career-companionproject-pdfkgrjjvdkovod76pdu3q.streamlit.app/)
+
 ## Project Overview
 
 AI Career Companion brings essential career preparation tools together in one Streamlit application. Students can upload their resumes, manage candidate profiles, explore relevant opportunities, identify missing skills, prepare application documents, practice interviews, and track their applications.
