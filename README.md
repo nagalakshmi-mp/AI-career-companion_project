@@ -66,15 +66,50 @@ AI Career Companion brings essential career preparation tools together in one St
 ## Project Structure
 
 ```text
+## 📁 Project Structure
+
+```text
 AI-career-companion_project/
+│
 ├── app.py
 ├── requirements.txt
 ├── README.md
 ├── .gitignore
+│
+├── AGILE_METHODOLOGY.md
+├── MILESTONE_1_REPORT.md
+├── MILESTONE_2_REPORT.md
+├── MILESTONE_3_REPORT.md
+├── MILESTONE_4_REPORT.md
+├── DEFECT_TRACKER.md
+├── INSTALLATION_GUIDE.md
+├── USER_GUIDE.md
+├── CONTRIBUTING.md
+├── CHANGELOG.md
+│
 ├── data/
+│   ├── README.md
 │   └── jobs.csv
+│
 └── src/
-    └── [Python modules and subfolders]
+    ├── __init__.py
+    ├── candidate_profile.py
+    ├── candidate_profile_data.py
+    ├── career_assistant.py
+    ├── check_jobs.py
+    ├── cover_letter_agent.py
+    ├── database.py
+    ├── generate_jobs.py
+    ├── interview_agent.py
+    ├── job_data.py
+    ├── llm_extractor.py
+    ├── matching_agent.py
+    ├── resume_agent.py
+    ├── resume_parser.py
+    ├── skill_gap_agent.py
+    └── test_resume.py
+```
+
 ```
 
 *Note: The structure above illustrates the main project components. Actual subfolders and files may differ. Keep the existing source-code structure required by the application.*
